@@ -6,20 +6,15 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Lapangan;
-
+use App\Models\User;
 class AdminDashboardController extends Controller
 {
     public function index()
     {
         $today = Carbon::today();
-
-        // Total booking hari ini
+        
         $bookingHariIni = Booking::whereDate('created_at', $today)->count();
-
-        // Total pemasukan hari ini
         $totalPemasukan = Booking::whereDate('created_at', $today)->sum('total_bayar');
-
-        // Lapangan aktif hari ini (misalnya status 'aktif')
         $lapanganAktif = Lapangan::where('status', 'aktif')->count();
 
         return response()->json([
@@ -28,4 +23,15 @@ class AdminDashboardController extends Controller
             'lapangan_aktif' => $lapanganAktif,
         ]);
     }
+
+        public function user()
+    {
+        $users = User::all(); 
+
+        return response()->json([
+            'success' => true,
+            'data' => $users
+        ]);
+    }
+
 }

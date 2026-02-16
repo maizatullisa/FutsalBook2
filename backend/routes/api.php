@@ -4,12 +4,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 Use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\Admin\AdminUserBookingController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Admin\LapanganSummaryController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+
+
+Route::get('/admin/bookings', [AdminUserBookingController::class, 'index']);
+Route::get('/admin/users', [AdminDashboardController::class, 'user']);
+Route::get('/admin/lapangan/today', [LapanganSummaryController::class, 'today']);
+
 
 // Public routes (tidak perlu authentication)
 Route::post('/register', [AuthController::class, 'register']);
@@ -38,3 +49,4 @@ Route::post('/feedback', [FeedbackController::class, 'store']);
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::put('/bookings/{id}', [BookingController::class, 'update']);
+Route::get('/bookings-today', [BookingController::class, 'bookingsToday']);

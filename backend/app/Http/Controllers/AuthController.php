@@ -38,6 +38,7 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'role' => 'user',
                 'api_token' => Str::random(60), // ← tambahkan token manual
             ]);
 
@@ -102,6 +103,7 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'role' => $user->role,
                 ],
                 'token' => $user->api_token
             ], 200);
@@ -150,7 +152,11 @@ class AuthController extends Controller
     {
         try {
             $token = $request->bearerToken();
-            $user = User::where('api_token', $token)->first();
+            // $user = User::where('api_token', $token)->first();
+            $user = User::where('api_token', $token)
+            ->where('role', 'user')
+            ->first();
+
 
             if (!$user) {
                 return response()->json([

@@ -71,49 +71,70 @@ const TOTAL_SLOTS = 8
 
 export default function Home() {
   const [fields, setFields] = useState(FIELD_DATA)
+  const [bookingsToday, setBookingsToday] = useState([])
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const updateFieldStatus = () => {
-      setFields(prev =>
-        prev.map(field => {
-          const shouldUpdate = Math.random() < 0.1
-          if (!shouldUpdate) return field
+  console.log("FIELDS UPDATED:", fields)
 
-          const maxBookings = Math.min(
-            TOTAL_SLOTS,
-            field.currentBookings + Math.floor(Math.random() * 3)
-          )
 
-          const newBookings = Math.max(
-            0,
-            maxBookings - Math.floor(Math.random() * 2)
-          )
+    useEffect(() => {
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/api/bookings-today", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token")
+        }
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        const today = new Date().toISOString().split("T")[0]
+
+        const todayBookings = data.data.filter(
+          booking => booking.date === today
+        )
+
+        setBookingsToday(todayBookings)
+
+        setFields(prevFields =>
+        prevFields.map(field => {
+          const bookingCount = todayBookings.filter(
+            booking => booking.field_name === field.name
+          ).length
+
+          const available = TOTAL_SLOTS - bookingCount
 
           return {
             ...field,
-            currentBookings: newBookings,
-            availableSlots: TOTAL_SLOTS - newBookings,
-            status: TOTAL_SLOTS - newBookings > 0 ? "Tersedia" : "Penuh"
+            currentBookings: bookingCount,
+            availableSlots: available,
+            status: available > 0 ? "Tersedia" : "Penuh"
           }
         })
       )
-    }
 
-    const interval = setInterval(updateFieldStatus, 10000)
-    return () => clearInterval(interval)
-  }, [])
+      }
+    } catch (err) {
+      console.error("Gagal ambil booking:", err)
+    }
+  }
+
+  fetchBookings()
+}, [])
 
   const handleBookingClick = fieldId => {
     navigate("/booking", { state: { fieldId } })
   }
+
+  console.log("BOOKING HARI INI:", bookingsToday)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50">
       <section className="relative py-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent">
               Premium Futsal
             </span>
             <br />
@@ -126,7 +147,7 @@ export default function Home() {
 
           <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-violet-500 rounded-full animate-pulse" />
               <span>Live Status Updates</span>
             </div>
             <span>•</span>

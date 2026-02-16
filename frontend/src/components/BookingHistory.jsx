@@ -65,22 +65,22 @@ export default function BookingHistory() {
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter(booking => booking.status === statusFilter)
+      filtered = filtered.filter(booking => booking.computed_status === statusFilter)
     }
 
     setFilteredBookings(filtered)
   }, [bookings, searchTerm, statusFilter])
 
-  const getStatusColor = status => {
-    const statusColors = {
-      completed: "bg-green-100 text-green-800 border-green-200",
-      ongoing: "bg-blue-100 text-blue-800 border-blue-200",
-      cancelled: "bg-red-100 text-red-800 border-red-200",
-      upcoming: "bg-yellow-100 text-yellow-800 border-yellow-200"
-    }
-
-    return statusColors[status] || "bg-gray-100 text-gray-800 border-gray-200"
+const getStatusColor = status => {
+  const statusColors = {
+    completed: "bg-violet-600 text-white border-violet-700",
+    ongoing: "bg-blue-600 text-white border-blue-700",
+    cancelled: "bg-red-600 text-white border-red-700",
+    upcoming: "bg-purple-600 text-white border-purple-700"
   }
+
+  return statusColors[status] || "bg-gray-600 text-white border-gray-700"
+}
 
   const getStatusIcon = status => {
     const icons = {
@@ -140,7 +140,7 @@ export default function BookingHistory() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Riwayat Booking</h1>
-          <p className="text-gray-600">Kelola dan pantau semua booking lapangan Anda</p>
+          <p className="text-gray-600">Pantau semua booking lapangan Anda</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
@@ -229,41 +229,64 @@ export default function BookingHistory() {
               )}
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+  <div className="divide-y divide-gray-100">
               {filteredBookings.map(booking => (
-                <div key={booking.id} className="p-4 sm:p-6 hover:bg-gray-50">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900">{booking.field_name}</h3>
-                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(booking.status)}`}>
-                          {getStatusIcon(booking.status)}
-                          {getStatusText(booking.status)}
+                <div 
+                  key={booking.id} 
+                  className="group p-6 transition-all duration-200 hover:bg-gray-50/80 cursor-pointer border-l-4 border-transparent hover:border-blue-600"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+                    <div className="flex-1 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                          {booking.field_name}
+                        </h3>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border ${getStatusColor(booking.status)}`}>
+                          {getStatusIcon(booking.computed_status)}
+                          {getStatusText(booking.computed_status)}
                         </span>
                       </div>
 
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <span>{booking.location}</span>
+                      <div className="grid sm:grid-cols-3 gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200">
+                            <MapPin className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Lokasi</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{booking.location}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-400" />
-                          <span>{formatDate(booking.date)}</span>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200">
+                            <Calendar className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Tanggal</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">{formatDate(booking.date)}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          <span>
-                            {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
-                          </span>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-blue-50 transition-colors duration-200">
+                            <Clock className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-500 font-medium">Waktu</p>
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {formatTime(booking.start_time)} - {formatTime(booking.end_time)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:items-end gap-2">
-                      <div className="text-lg font-bold text-gray-900">
+                    <div className="flex flex-col sm:items-end justify-center">
+                      <p className="text-xs text-gray-500 font-medium mb-1">Total Pembayaran</p>
+                      <p className="text-2xl font-bold text-gray-900">
                         Rp {booking.total_price?.toLocaleString("id-ID")}
-                      </div>
+                      </p>
                     </div>
                   </div>
                 </div>
